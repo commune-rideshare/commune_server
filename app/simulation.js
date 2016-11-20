@@ -1,9 +1,5 @@
 'use strict'
 
-// var city = require('./city')
-// var utilities = require('./utilities')
-// var draw = require('./draw')
-// var cities = require('./cities')
 var Chance = require('chance')
 var chance = new Chance()
 var PoissonProcess = require('poisson-process')
