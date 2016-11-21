@@ -4,10 +4,12 @@ var PubSub = require('pubsub-js')
 var emoji = require('node-emoji')
 
 var names = require('../config/names')
+var geo = require('./geo')
 
 var rider = {
   create: function create () {
     let newRider = {
+      location: geo.getRandomPoint(),
       name: names.getRandomName(),
       guid: chance.guid(),
       shares: 0,
@@ -20,15 +22,14 @@ var rider = {
         PubSub.publish('rideRequest', this.name)
         // State: waiting
         this.waiting = true
-        console.log((emoji.get(':bell:') + '  ' +  this.name + ' requests a ride').bgCyan)
-        // Pass on this...
+        console.log((emoji.get(':bell:') + '  ' +  this.name + ' requests a ride @ ' + this.location.point.geometry.coordinates).bgCyan)
+        // SAve this to rider
         let rider = this
         // Listen to offers
-        // console.log((rider.name + ' subscribes to rideOffered').bgCyan)
         PubSub.subscribe('rideOffered', function (msg, data) {
-          // console.dir(data)
-          console.log((emoji.get(':thumbsup:') + '  ' +  rider.name + ' received an acceptance from ' + data.name).bgCyan)
+          console.log((emoji.get(':thumbsup:') + '  ' +  rider.name + ' received an offer from ' + data.name).bgCyan)
           PubSub.publish(data.guid, {name: rider.name})
+          PubSub.publish('rideRejected', {name: rider.name})
           PubSub.unsubscribe('rideOffered')
         })
       }
