@@ -4,6 +4,8 @@ var Chance = require('chance')
 var chance = new Chance()
 var PoissonProcess = require('poisson-process')
 var colors = require('colors')
+var emoji = require('node-emoji')
+
 
 var settings = require('../config/settings')
 var driver = require('./driver')
@@ -12,10 +14,12 @@ var state = require('./state')
 
 var simulation = {
   start: function start () {
-    console.log('Initializing simulation...'.green)
+    console.log((emoji.get(':car:') + '  ' + 'commune').bgBlack)
+    console.log((emoji.get(':vertical_traffic_light:') + '  ' + 'Initializing simulation...').green)
+
 
     // Spawn drivers
-    console.log(('Creating ' + settings.numberOfDrivers + ' drivers...').bgYellow)
+    console.log((emoji.get(':blue_car:') + '  ' + 'Creating ' + settings.numberOfDrivers + ' drivers...').bgYellow)
     for (let i = 0; i < settings.numberOfDrivers; i++) {
       let newDriver = driver.create()
       console.log((newDriver.name).yellow)
@@ -24,7 +28,7 @@ var simulation = {
     }
 
     // Spawn riders
-    console.log(('Creating ' + settings.numberOfRiders + ' riders..').bgCyan)
+    console.log((emoji.get(':imp:') + '  ' + 'Creating ' + settings.numberOfRiders + ' riders..').bgCyan)
     for (let i = 0; i < settings.numberOfRiders; i++) {
       let newRider = rider.create()
       console.log((newRider.name).cyan)
@@ -32,7 +36,7 @@ var simulation = {
     }
 
     // Define the event loop
-    console.log('Starting Event-loop...'.green)
+    console.log((emoji.get(':recycle:') + '  ' + 'Starting Event-loop...').green)
     var eventLoop = PoissonProcess.create(settings.simulationSpeed, function message () {
       let riderIndex = 0
       while (true) {
@@ -52,7 +56,6 @@ var simulation = {
 }
 
 module.exports = simulation
-
 
   //       // Find closest driver
   //       driverIndex = city.getClosestDriver(city.riders[riderIndex])

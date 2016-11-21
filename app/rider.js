@@ -1,6 +1,7 @@
 var Chance = require('chance')
 var chance = new Chance()
 var PubSub = require('pubsub-js')
+var emoji = require('node-emoji')
 
 var names = require('../config/names')
 
@@ -19,14 +20,14 @@ var rider = {
         PubSub.publish('rideRequest', this.name)
         // State: waiting
         this.waiting = true
-        console.log(this.name + ' requests a ride')
+        console.log((emoji.get(':bell:') + '  ' +  this.name + ' requests a ride').bgCyan)
         // Pass on this...
         let rider = this
         // Listen to offers
-        console.log(rider.name + ' subscribes to rideOffered')
+        // console.log((rider.name + ' subscribes to rideOffered').bgCyan)
         PubSub.subscribe('rideOffered', function (msg, data) {
           // console.dir(data)
-          console.log((rider.name + ' received an acceptance from ' + data.name).bgCyan)
+          console.log((emoji.get(':thumbsup:') + '  ' +  rider.name + ' received an acceptance from ' + data.name).bgCyan)
           PubSub.publish(data.guid, {name: rider.name})
           PubSub.unsubscribe('rideOffered')
         })

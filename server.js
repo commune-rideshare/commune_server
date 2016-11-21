@@ -26,7 +26,6 @@ require('./app/socket.js')(app, io)
  *
  */
 
-console.log('commune')
 simulation.start()
 
 /*
