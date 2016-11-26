@@ -2,65 +2,104 @@ var Chance = require('chance')
 var chance = new Chance()
 var MapboxClient = require('mapbox')
 var turf = require('turf')
-var geohash = require('ngeohash')
 
 var config = require('../config/config')
-
-var geo = {
-  mapboxClient: new MapboxClient(config.key),
-  getRandomPoint: function getRandomPoint() {
-
-    var location = {
+var settings = require('../config/settings')
+var dummyLocation = {
       point: {
-        "type": "Feature",
-        "geometry": {
-          "type": "Point",
+        'type': 'Feature',
+        'geometry': {
+          'type': 'Point',
           "coordinates": [chance.longitude({
-            min: 10,
-            max: 20,
+            min: settings.city.bounds._sw.lng,
+            max: settings.city.bounds._ne.lng,
           }), chance.latitude({
-            min: 10,
-            max: 20,
+            min: settings.city.bounds._sw.lat,
+            max: settings.city.bounds._ne.lat,
           })]
         }
       }
-    };
+    }
 
-    return location;
-
-  },
-  getClosestDriver: function getClosestDriver(riderPoint, driverPointCollection) {
-    if (driverPointCollection.features.length != 0) {
-      var nearestDriver = turf.nearest(riderPoint, driverPointCollection)
-      for (var i = 0, iLen = this.drivers.length; i < iLen; i++) {
-        if (this.drivers[i].point.geometry.coordinates === nearestDriver.geometry.coordinates) {
-          return i
-        } else {
-        return -1
+var geo = {
+  mapboxClient: new MapboxClient(config.key),
+  getRandomPoint: function getRandomPoint () {
+    var rawLocation = {
+      point: {
+        'type': 'Feature',
+        'geometry': {
+          'type': 'Point',
+          "coordinates": [chance.longitude({
+            min: settings.city.bounds._sw.lng,
+            max: settings.city.bounds._ne.lng,
+          }), chance.latitude({
+            min: settings.city.bounds._sw.lat,
+            max: settings.city.bounds._ne.lat,
+          })]
         }
       }
     }
+    return rawLocation
   },
-  getDirections: function getDirections(start, end, cb) {
-
+  getClosestDriver: function getClosestDriver (offers, rider, cb) {
+    // console.dir(rider);
+    let riderPoint = turf.point(rider.location.point.geometry.coordinates)
+    let features = []
+    offers.forEach(function(offer){
+      offer.point.point.geometry.coordinates
+      let feature = turf.point(offer.point.point.geometry.coordinates, {
+          "guid": offer.guid,
+          "index": offer.index,
+          "name": offer.name
+      })
+      features.push(feature)
+    })
+    var nearestDriver = turf.nearest(riderPoint, {
+      type: "FeatureCollection",
+      features: features
+    })
+    if(nearestDriver) {
+      // console.dir(nearestDriver)
+      cb(nearestDriver)
+    } else {
+      cb(null)
+    }
+  },
+  getDirections: function getDirections (start, end, cb) {
     this.mapboxClient.getDirections([{
-        latitude: start.point.geometry.coordinates[1],
-        longitude: start.point.geometry.coordinates[0]
-      }, {
-        latitude: end.point.geometry.coordinates[1],
-        longitude: end.point.geometry.coordinates[0]
-      }],
+      latitude: start.point.geometry.coordinates[1],
+      longitude: start.point.geometry.coordinates[0]
+    }, {
+      latitude: end.point.geometry.coordinates[1],
+      longitude: end.point.geometry.coordinates[0]
+    }],
       function (err, res) {
-
         cb({
           route: res.routes[0],
           routeId: chance.guid(),
           driver: start
-        });
+        })
+      })
+  },
+  snapToRoads: function snapToRoads(rawLocation, cb) {
 
-      });
+    this.getDirections(rawLocation, dummyLocation, function(routeData){
+
+      var snapLocation = {
+        point: {
+          'type': 'Feature',
+          'geometry': {
+            'type': 'Point',
+            "coordinates": routeData.route.geometry.coordinates[0]
+          }
+        }
+      }
+
+      cb(snapLocation)
+
+    })
 
   }
 }
 
-module.exports = geo;
+module.exports = geo

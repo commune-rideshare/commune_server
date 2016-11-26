@@ -1,37 +1,6 @@
-/*
- *
- *  Set up Express, start server, start socket.io...
- *
- */
+const simulation = require('./app/simulation')
+const communicator = require('./app/communicator')
 
-var express = require('express')
-var app = express()
-var port = process.env.PORT || 8080
-var server = app.listen(port)
-var io = require('socket.io').listen(server)
-
-var simulation = require('./app/simulation')
-
-/*
- *
- *  Sockets
- *
- */
-
-require('./app/socket.js')(app, io)
-
-/*
- *
- *  Simulation
- *
- */
+communicator.init()
 
 simulation.start()
-
-/*
- *
- *  Start app
- *
- */
-
-exports = module.exports = app

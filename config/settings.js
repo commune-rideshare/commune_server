@@ -3,7 +3,7 @@
 var cities = require('./cities')
 
 var settings = {
-  simulationSpeed: 4000,
+  simulationSpeed: 10000,
   city: cities[3], // Amsterdam
   numberOfRiders: 30,
   numberOfDrivers: 12,

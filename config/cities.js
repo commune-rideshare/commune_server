@@ -20,7 +20,17 @@ var cities = [
     text: 'Amsterdam',
     value: 'amsterdam',
     center: [4.8574038, 52.3561256],
-    zoom: 15
+    zoom: 15,
+    bounds: {
+      _ne: {
+        lat: 52.379663,
+        lng: 4.889484
+      },
+      _sw: {
+        lat: 52.339387,
+        lng: 4.8345323
+      }
+    }
   }
 ]
 
